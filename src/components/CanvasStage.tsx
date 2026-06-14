@@ -1,6 +1,7 @@
 /** Composition preview: toolbar, progress, report, canvas, and empty states. */
-import React from 'react';
+import React, { useId } from 'react';
 import type { PlacementReport } from '../lib/types';
+import { EXPORT_DIMS } from '../lib/types';
 import Report from './Report';
 import { StopIcon } from './icons';
 
@@ -12,6 +13,9 @@ interface CanvasStageProps {
   isGenerating: boolean;
   progress: number;
   report: PlacementReport | null;
+  exportLongSide: number;
+  exportDims: { w: number; h: number } | null;
+  onExportLongSideChange: (value: number) => void;
   onCancel: () => void;
 }
 
@@ -34,6 +38,7 @@ function EmptyState({ hasTarget, hasSources }: { hasTarget: boolean; hasSources:
 }
 
 export default function CanvasStage(props: CanvasStageProps) {
+  const exportSizeId = useId();
   const status = props.isGenerating
     ? `Generating… ${Math.round(props.progress * 100)}%`
     : props.hasResult
@@ -46,12 +51,38 @@ export default function CanvasStage(props: CanvasStageProps) {
         <span className="aff-stage__status" role="status" aria-live="polite">
           {status}
         </span>
-        {props.isGenerating ? (
-          <button type="button" className="aff-btn aff-btn--ghost" onClick={props.onCancel}>
-            <StopIcon className="aff-btn__icon" />
-            Cancel
-          </button>
-        ) : null}
+        <div className="aff-stage__toolbar-right">
+          {props.hasResult && !props.isGenerating ? (
+            <div className="aff-stage__export">
+              <label className="aff-label" htmlFor={exportSizeId}>
+                Export size
+              </label>
+              <select
+                id={exportSizeId}
+                className="aff-select aff-select--inline"
+                value={props.exportLongSide}
+                onChange={(e) => props.onExportLongSideChange(Number(e.target.value))}
+              >
+                {EXPORT_DIMS.map((d) => (
+                  <option key={d} value={d}>
+                    {d} px
+                  </option>
+                ))}
+              </select>
+              {props.exportDims ? (
+                <span className="aff-stage__status">
+                  {props.exportDims.w} × {props.exportDims.h} px
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+          {props.isGenerating ? (
+            <button type="button" className="aff-btn aff-btn--ghost" onClick={props.onCancel}>
+              <StopIcon className="aff-btn__icon" />
+              Cancel
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {props.isGenerating ? (

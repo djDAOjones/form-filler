@@ -5,8 +5,8 @@
  * Generation runs as an async, chunked routine that reports progress through
  * a callback, so the UI never freezes.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_SETTINGS } from '../lib/types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DEFAULT_SETTINGS, DEFAULT_EXPORT_DIM, PREVIEW_MAX_DIM } from '../lib/types';
 import type { Placement, PlacementReport, Settings, SourceItem } from '../lib/types';
 import { loadSource, loadTarget, loadSourceFromUrl, loadTargetFromUrl } from '../lib/imageLoading';
 import type { TargetData } from '../lib/imageLoading';
@@ -14,7 +14,8 @@ import { PRESET_FILLERS, PRESET_SHAPES, DEFAULT_DEMO_SHAPE } from '../lib/preset
 import type { PresetItem } from '../lib/presets';
 import { buildTargetMask } from '../lib/mask';
 import { generate } from '../lib/placement';
-import { exportCanvasPng, renderToCanvas } from '../lib/render';
+import { exportComposition, renderToCanvas } from '../lib/render';
+import type { RenderParams } from '../lib/render';
 import { randomSeed } from '../lib/rng';
 import Uploaders from './Uploaders';
 import Controls from './Controls';
@@ -32,6 +33,7 @@ export default function App() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [targetPresetId, setTargetPresetId] = useState<string | null>(null);
   const [autoGenPending, setAutoGenPending] = useState(false);
+  const [exportLongSide, setExportLongSide] = useState<number>(DEFAULT_EXPORT_DIM);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -40,18 +42,39 @@ export default function App() {
   const hasResult = !!placements && placements.length > 0;
   const canGenerate = !!target && sources.length > 0 && !isGenerating;
 
-  // Re-render the canvas whenever the result or its inputs change.
-  useEffect(() => {
-    if (!placements || !target || !canvasRef.current) return;
-    renderToCanvas(canvasRef.current, {
+  const buildRenderParams = useCallback((): RenderParams | null => {
+    if (!placements || !target) return null;
+    return {
       placements,
       sources,
       placementWidth: target.imageData.width,
       placementHeight: target.imageData.height,
       targetWidth: target.naturalWidth,
       targetHeight: target.naturalHeight,
-    });
+    };
   }, [placements, target, sources]);
+
+  // Re-render the (light) preview canvas whenever the composition changes.
+  useEffect(() => {
+    const params = buildRenderParams();
+    if (!params || !canvasRef.current) return;
+    const previewLong = Math.min(
+      Math.max(params.targetWidth, params.targetHeight),
+      PREVIEW_MAX_DIM,
+    );
+    renderToCanvas(canvasRef.current, params, previewLong);
+  }, [buildRenderParams]);
+
+  // Resulting export dimensions for the chosen size (toolbar readout).
+  const exportDims = useMemo(() => {
+    if (!target) return null;
+    const placementLong = Math.max(1, target.imageData.width, target.imageData.height);
+    const ratio = exportLongSide / placementLong;
+    return {
+      w: Math.round(target.imageData.width * ratio),
+      h: Math.round(target.imageData.height * ratio),
+    };
+  }, [target, exportLongSide]);
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => ({ ...prev, ...patch }));
@@ -231,9 +254,18 @@ export default function App() {
   const handleCancel = useCallback(() => abortRef.current?.abort(), []);
 
   const handleExport = useCallback(async () => {
-    if (!canvasRef.current || !hasResult) return;
-    await exportCanvasPng(canvasRef.current, `artwork-${settings.seed}.png`);
-  }, [hasResult, settings.seed]);
+    const params = buildRenderParams();
+    if (!params) return;
+    try {
+      await exportComposition(
+        params,
+        exportLongSide,
+        `artwork-${settings.seed}-${exportLongSide}px.png`,
+      );
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Could not export the image.');
+    }
+  }, [buildRenderParams, exportLongSide, settings.seed]);
 
   return (
     <div className="aff-app">
@@ -317,6 +349,9 @@ export default function App() {
           isGenerating={isGenerating}
           progress={progress}
           report={report}
+          exportLongSide={exportLongSide}
+          exportDims={exportDims}
+          onExportLongSideChange={setExportLongSide}
           onCancel={handleCancel}
         />
       </div>

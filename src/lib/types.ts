@@ -109,8 +109,14 @@ export const PLACEMENT_MAX_DIM = 700;
 /** Largest source-mask dimension (px) for placement geometry. Render uses the original. */
 export const SOURCE_MAX_DIM = 360;
 
-/** Default export canvas longest side (px) when the target is small. */
-export const MIN_EXPORT_DIM = 1200;
+/** Preview canvas longest side (px). Keeps the live preview light; export renders separately. */
+export const PREVIEW_MAX_DIM = 1400;
+
+/** Export size presets (longest side, px) — roughly 7" / 12" / 16" at 300 DPI. */
+export const EXPORT_DIMS = [2048, 3600, 4800] as const;
+
+/** Default export longest side (px). */
+export const DEFAULT_EXPORT_DIM = 3600;
 
 export const DEFAULT_SETTINGS: Settings = {
   maskMode: 'auto',

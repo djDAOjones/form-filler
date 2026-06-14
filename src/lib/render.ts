@@ -6,7 +6,6 @@
  * so the exported PNG is full quality. The output is silhouettes on a fully
  * transparent background — what you see is what you export.
  */
-import { MIN_EXPORT_DIM } from './types';
 import type { Placement, SourceItem } from './types';
 
 export interface RenderParams {
@@ -20,11 +19,12 @@ export interface RenderParams {
   targetHeight: number;
 }
 
-/** Compute the output canvas size from the target, with a minimum long side. */
-function outputSize(p: RenderParams): { width: number; height: number; ratio: number } {
-  const targetLong = Math.max(p.targetWidth, p.targetHeight);
-  const outputLong = Math.max(targetLong, MIN_EXPORT_DIM);
-  const placementLong = Math.max(p.placementWidth, p.placementHeight);
+/** Compute the output canvas size for a given output longest side (px). */
+function outputSize(
+  p: RenderParams,
+  outputLong: number,
+): { width: number; height: number; ratio: number } {
+  const placementLong = Math.max(1, p.placementWidth, p.placementHeight);
   const ratio = outputLong / placementLong; // placement-space → output-space
   return {
     width: Math.max(1, Math.round(p.placementWidth * ratio)),
@@ -37,8 +37,12 @@ function outputSize(p: RenderParams): { width: number; height: number; ratio: nu
  * Draw the composition onto `canvas` (sized to the export resolution). The
  * background stays transparent; only the placed silhouettes are drawn.
  */
-export function renderToCanvas(canvas: HTMLCanvasElement, params: RenderParams): void {
-  const { width, height, ratio } = outputSize(params);
+export function renderToCanvas(
+  canvas: HTMLCanvasElement,
+  params: RenderParams,
+  outputLong: number,
+): void {
+  const { width, height, ratio } = outputSize(params, outputLong);
   canvas.width = width;
   canvas.height = height;
 
@@ -69,6 +73,21 @@ export function renderToCanvas(canvas: HTMLCanvasElement, params: RenderParams):
     ctx.drawImage(img, sx, sy, sw, sh, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
   }
+}
+
+/**
+ * Render the composition to an offscreen canvas at the chosen export size and
+ * download it as a transparent PNG. Kept separate from the live preview so the
+ * preview stays light while export is full-resolution.
+ */
+export async function exportComposition(
+  params: RenderParams,
+  outputLong: number,
+  filename: string,
+): Promise<void> {
+  const canvas = document.createElement('canvas');
+  renderToCanvas(canvas, params, outputLong);
+  await exportCanvasPng(canvas, filename);
 }
 
 /** Export the canvas as a transparent PNG download. */
