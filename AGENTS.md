@@ -4,13 +4,19 @@
      the CUSTOMISE placeholders. Until then, the project memory files
      in pm_skills/project/ are the primary references. -->
 
-<!-- CUSTOMISE: Replace [Project Name] and write a 2–4 sentence product
-     description. State what the app IS and what mental model is canonical.
-     Optionally state what it is NOT, to prevent the wrong assumptions. -->
-
 ## Product identity
 
-**[Project Name]** — _[short product description]_.
+**Artwork Form Filler** — a browser-only React + TypeScript tool that fills
+a **target shape** with many **source silhouette images**, arranging them so
+every placed silhouette is complete (never clipped), never overlaps another,
+never extends outside the target, and the result does not look tiled. It
+renders to canvas and exports a transparent PNG.
+
+The canonical mental model is **raster masks**: the target and every source
+are binary pixel masks; placement is a search that tests a transformed
+source mask for full containment in the target mask and non-collision with
+an occupancy mask. It is **not** a vector/SVG nester, a tiling/pattern fill,
+or a server-rendered app — all work happens client-side on the canvas.
 
 ---
 
@@ -161,17 +167,37 @@ asks — capturing the one line is the whole interaction.
   colour-only meaning. Where Carbon defaults meet AA but not AAA,
   adapt them. See `UI-STANDARDS.md` for full accessibility rules.
 
-<!-- CUSTOMISE: Add project-specific invariants below. See init.md Step 6 for example shapes. -->
+- **Placement correctness is the product.** A placement is only valid if
+  every visible source pixel lands on an inside-target pixel (full
+  containment, no clipping) and no visible source pixel collides with the
+  occupancy mask (no overlap, honouring spacing). Never relax these tests to
+  make more pieces fit.
+- **Alpha-aware, never bounding-box.** All containment, collision, and
+  trimming use the real visible (alpha) silhouette, never the rectangular
+  image box.
+- **Generation must be deterministic for a given seed + settings**, and must
+  run chunked so the UI never freezes.
+- **Internal placement may be lower-resolution; final export must be
+  full-quality.** Placement maths runs on downscaled masks; rendering
+  composites the original source images.
 
 ---
 
-<!-- CUSTOMISE: Add a "Core data model" section if the project has canonical
-     entities. See init.md Step 6 for example shape. -->
+## Core data model
 
----
+- **`Mask`** — `{ width, height, data: Uint8Array }` where `data[i]` is 1 for
+  an inside/visible pixel and 0 otherwise. The target is one mask; each
+  trimmed source is one mask.
+- **`SourceItem`** — a loaded source: original image + its trimmed alpha
+  mask + visible-pixel area.
+- **`Placement`** — `{ sourceIndex, x, y, scale, angle }` describing one
+  committed silhouette. The composition is an ordered list of placements.
+- **`Occupancy`** — a single mask accumulating all committed placements
+  (dilated by spacing) used for collision tests.
 
-<!-- CUSTOMISE: Add a section per domain-specific subsystem (simulation,
-     rendering pipeline, data pipeline, etc.) if the project has any. -->
+Do **not** represent silhouettes as rectangles/bounding boxes for any
+containment or collision decision, and do **not** introduce a tiling/grid
+fill — placement is a randomised, seed-driven search.
 
 ---
 
@@ -186,9 +212,12 @@ asks — capturing the one line is the whole interaction.
 
 ---
 
-<!-- CUSTOMISE: If the project uses an event bus, define event namespaces here.
-     If it uses hooks, direct imports, or another pattern, state that instead.
-     See init.md Step 6 for example shape. -->
+## Communication pattern
+
+No event bus or global store. Pure functions in `src/lib/` communicate by
+direct import; React state is lifted to `App.tsx` and passed down via props.
+Generation is an async, chunked routine that yields to the event loop and
+reports progress through a callback.
 
 ---
 
@@ -265,9 +294,11 @@ in `pm_skills/project/conventions.md`.
 
 ## Files to never edit
 
-<!-- CUSTOMISE: List paths agents must never hand-edit. See
-     DEV-INFRASTRUCTURE.md for the concrete project list. -->
+Concrete project list (see `DEV-INFRASTRUCTURE.md`):
 
+- `dist/` — Vite build output, overwritten on every build.
+- `node_modules/` — managed by npm.
+- `package-lock.json` — managed by npm; commit it but do not hand-edit.
 - Build output directories.
 
 See `DEV-INFRASTRUCTURE.md` for the concrete list of protected paths.
@@ -321,4 +352,12 @@ Project-specific anti-patterns are in
 `pm_skills/project/conventions.md` under
 "Patterns to avoid".
 
-<!-- CUSTOMISE: Add project-specific anti-patterns below. -->
+Project-specific anti-patterns:
+
+- Using an image's rectangular bounding box (instead of its alpha silhouette)
+  for any containment, collision, or trim decision.
+- Introducing a grid/tiling/pattern fill — placement is a randomised,
+  seed-driven search.
+- Relaxing the containment or collision test to fit more pieces.
+- Doing placement maths on full-resolution images, or running generation
+  synchronously without yielding to the event loop.

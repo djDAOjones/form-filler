@@ -17,14 +17,17 @@
      moves the oldest phases to archive/trajectory/trajectory-NNNN-<range>.md and
      adds a row to archive/INDEX.md. Archives are append-only; never rewrite. -->
 
-<!--
-Example phase (delete when you add your first real one):
+## Performance pass — placement allocation fix (shipped 2026-06-14)
 
-## Phase 1 — Text-only skeleton (shipped 2026-04-20)
+- PERF-A — `rasterizeTransformed` fills reusable module scratch buffers (borrowed-buffer contract; consumers honor `count`) instead of per-attempt `number[]` + `Int32Array.from`; output-preserving, ~1.43×/1.25× faster (reuse / use-each-once). Added a seeded benchmark (`npm run bench`) + a placement determinism / containment-overlap / output-snapshot safety net. See decision-log 2026-06-14.
 
-- A1-1 — Hub control plane + event-log projections. See decision-log 2026-04-12.
-- A1-2 — Audience submit (anonymous, cooldown). See decision-log 2026-04-14.
-- A1-3 — Moderator console v0 (four-pane shell). See decision-log 2026-04-15.
+Outcome: ~30%/20% faster generation with zero output change; 25 tests green, build clean. Resolution tuning identified (`PLACEMENT_MAX_DIM` dominant) but paused pending visual sign-off.
 
-Outcome: an end-to-end text path runs locally; submit -> moderate -> display.
--->
+## MVP — Raster form filler (shipped 2026-06-13)
+
+- Foundation — brief, architecture, backlog, README; AGENTS/UI-STANDARDS/DEV-INFRASTRUCTURE populated; Vite+React+TS scaffold. See decision-log 2026-06-13.
+- Core libs — rng, types, imageLoading, mask (build/trim/erode/disk), transform (rasterise + canPlace + stamp), placement (both modes, chunked), render (+ PNG export).
+- UI — uploaders (target + sources), full control set, canvas preview, progress, placement report; Carbon-style CSS tokens, WCAG-AAA-tuned.
+- Tests — Vitest safety net for RNG determinism, mask trim/detect/erode, and containment/collision/spacing (21 tests).
+
+Outcome: upload a target shape + transparent PNG silhouettes, generate a non-overlapping, non-clipped, in-bounds composition (reuse or use-each-once with a placement report), preview on canvas, and export a transparent PNG. `npm run build` + `npm test` green.

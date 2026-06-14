@@ -1,0 +1,496 @@
+/* Layout and component styles. Carbon-style productive UI, AAA-tuned. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--aff-font-sans);
+  font-size: var(--aff-type-body);
+  line-height: var(--aff-line-body);
+  color: var(--aff-text-primary);
+  background: var(--aff-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible focus for every interactive element (AAA). */
+:focus-visible {
+  outline: var(--aff-focus-width) solid var(--aff-focus);
+  outline-offset: 1px;
+}
+
+/* ---------- App shell ---------- */
+.aff-app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.aff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--aff-sp-5);
+  padding: 0 var(--aff-sp-5);
+  height: var(--aff-sp-9);
+  background: var(--aff-text-primary);
+  color: var(--aff-text-on-color);
+}
+
+.aff-header__title {
+  font-size: var(--aff-type-body-lg);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.aff-header__actions {
+  display: flex;
+  gap: var(--aff-sp-3);
+  align-items: center;
+}
+
+.aff-body {
+  display: grid;
+  grid-template-columns: 22rem 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 60rem) {
+  .aff-body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+}
+
+.aff-sidebar {
+  background: var(--aff-layer);
+  border-right: var(--aff-border-width) solid var(--aff-border-subtle);
+  overflow-y: auto;
+  padding: var(--aff-sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--aff-sp-6);
+}
+
+.aff-stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---------- Section / fieldset ---------- */
+.aff-section {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.aff-section__legend,
+.aff-section__title {
+  font-size: var(--aff-type-body);
+  font-weight: 600;
+  color: var(--aff-text-primary);
+  margin: 0 0 var(--aff-sp-4);
+  padding: 0;
+  width: 100%;
+  border-bottom: var(--aff-border-width) solid var(--aff-border-subtle);
+  padding-bottom: var(--aff-sp-3);
+}
+
+.aff-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aff-sp-2);
+  margin-bottom: var(--aff-sp-5);
+}
+
+.aff-field:last-child {
+  margin-bottom: 0;
+}
+
+.aff-label {
+  font-size: var(--aff-type-label);
+  color: var(--aff-text-secondary);
+}
+
+.aff-helper {
+  font-size: var(--aff-type-helper);
+  color: var(--aff-text-secondary);
+}
+
+.aff-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--aff-text-primary);
+  font-weight: 600;
+}
+
+.aff-row {
+  display: flex;
+  gap: var(--aff-sp-3);
+}
+
+.aff-row > * {
+  flex: 1;
+}
+
+/* ---------- Text / number inputs ---------- */
+.aff-input,
+.aff-select {
+  height: var(--aff-control-height);
+  width: 100%;
+  padding: 0 var(--aff-sp-4);
+  font-family: inherit;
+  font-size: var(--aff-type-body);
+  color: var(--aff-text-primary);
+  background: var(--aff-field);
+  border: none;
+  border-bottom: var(--aff-border-width) solid var(--aff-border-strong);
+}
+
+.aff-input:hover,
+.aff-select:hover {
+  background: var(--aff-field-hover);
+}
+
+.aff-input:disabled,
+.aff-select:disabled {
+  color: var(--aff-text-disabled);
+  border-bottom-color: var(--aff-border-subtle);
+  cursor: not-allowed;
+}
+
+/* ---------- Range slider ---------- */
+.aff-range {
+  width: 100%;
+  height: var(--aff-control-height);
+  accent-color: var(--aff-interactive);
+  cursor: pointer;
+}
+
+/* ---------- Checkbox / radio ---------- */
+.aff-check,
+.aff-radio {
+  display: flex;
+  align-items: center;
+  gap: var(--aff-sp-3);
+  min-height: var(--aff-control-height);
+  cursor: pointer;
+}
+
+.aff-check input,
+.aff-radio input {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--aff-interactive);
+  cursor: pointer;
+  flex: none;
+}
+
+.aff-check__text {
+  font-size: var(--aff-type-body);
+  color: var(--aff-text-primary);
+}
+
+.aff-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aff-sp-1);
+}
+
+/* ---------- Buttons ---------- */
+.aff-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--aff-sp-3);
+  min-height: var(--aff-control-height);
+  min-width: var(--aff-control-height);
+  padding: 0 var(--aff-sp-5);
+  font-family: inherit;
+  font-size: var(--aff-type-body);
+  font-weight: 500;
+  border: var(--aff-border-width) solid transparent;
+  cursor: pointer;
+  transition: background var(--aff-dur-fast) var(--aff-ease);
+  text-align: left;
+}
+
+.aff-btn:disabled {
+  background: var(--aff-text-disabled);
+  color: var(--aff-layer);
+  cursor: not-allowed;
+}
+
+.aff-btn--primary {
+  background: var(--aff-interactive);
+  color: var(--aff-text-on-color);
+}
+.aff-btn--primary:not(:disabled):hover {
+  background: var(--aff-interactive-hover);
+}
+.aff-btn--primary:not(:disabled):active {
+  background: var(--aff-interactive-active);
+}
+
+.aff-btn--secondary {
+  background: var(--aff-button-secondary);
+  color: var(--aff-text-on-color);
+}
+.aff-btn--secondary:not(:disabled):hover {
+  background: var(--aff-button-secondary-hover);
+}
+
+.aff-btn--ghost {
+  background: transparent;
+  color: var(--aff-interactive);
+}
+.aff-btn--ghost:not(:disabled):hover {
+  background: var(--aff-layer-hover);
+}
+
+.aff-btn--ghost-on-dark {
+  background: transparent;
+  color: var(--aff-text-on-color);
+  border-color: transparent;
+}
+.aff-btn--ghost-on-dark:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.aff-btn--full {
+  width: 100%;
+}
+
+.aff-btn__icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+}
+
+.aff-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aff-sp-3);
+}
+
+/* ---------- Uploader / dropzone ---------- */
+.aff-drop {
+  border: 1px dashed var(--aff-border-strong);
+  background: var(--aff-field);
+  padding: var(--aff-sp-5);
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--aff-sp-3);
+  color: var(--aff-text-secondary);
+}
+
+.aff-drop:hover,
+.aff-drop--over {
+  background: var(--aff-field-hover);
+  border-color: var(--aff-interactive);
+  color: var(--aff-text-primary);
+}
+
+.aff-drop:focus-within {
+  outline: var(--aff-focus-width) solid var(--aff-focus);
+  outline-offset: 1px;
+}
+
+.aff-drop__hint {
+  font-size: var(--aff-type-helper);
+}
+
+.aff-drop input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Thumbnails ---------- */
+.aff-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr));
+  gap: var(--aff-sp-3);
+  margin-top: var(--aff-sp-4);
+  list-style: none;
+  padding: 0;
+}
+
+.aff-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  background-color: var(--aff-checker-b);
+  background-image:
+    linear-gradient(45deg, var(--aff-checker-a) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--aff-checker-a) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--aff-checker-a) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--aff-checker-a) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  border: var(--aff-border-width) solid var(--aff-border-subtle);
+}
+
+.aff-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.aff-thumb__remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--aff-text-primary);
+  color: var(--aff-text-on-color);
+  border: none;
+  cursor: pointer;
+  font-size: var(--aff-type-caption);
+  line-height: 1;
+}
+
+.aff-thumb--target {
+  aspect-ratio: 16 / 10;
+}
+
+/* ---------- Canvas stage ---------- */
+.aff-stage__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--aff-sp-4);
+  padding: var(--aff-sp-3) var(--aff-sp-5);
+  background: var(--aff-layer);
+  border-bottom: var(--aff-border-width) solid var(--aff-border-subtle);
+  min-height: var(--aff-sp-8);
+}
+
+.aff-stage__status {
+  font-size: var(--aff-type-helper);
+  color: var(--aff-text-secondary);
+}
+
+.aff-canvas-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--aff-sp-6);
+}
+
+.aff-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  background-color: var(--aff-checker-b);
+  background-image:
+    linear-gradient(45deg, var(--aff-checker-a) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--aff-checker-a) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--aff-checker-a) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--aff-checker-a) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  border: var(--aff-border-width) solid var(--aff-border-subtle);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Empty state ---------- */
+.aff-empty {
+  text-align: center;
+  color: var(--aff-text-secondary);
+  max-width: 28rem;
+  padding: var(--aff-sp-6);
+}
+
+.aff-empty__title {
+  font-size: var(--aff-type-heading);
+  font-weight: 600;
+  color: var(--aff-text-primary);
+  margin: 0 0 var(--aff-sp-4);
+}
+
+.aff-empty__body {
+  margin: 0;
+  font-size: var(--aff-type-body-lg);
+}
+
+/* ---------- Progress ---------- */
+.aff-progress {
+  width: 100%;
+}
+
+.aff-progress__track {
+  width: 100%;
+  height: 0.5rem;
+  background: var(--aff-layer-accent);
+  overflow: hidden;
+}
+
+.aff-progress__bar {
+  height: 100%;
+  background: var(--aff-interactive);
+  transition: width var(--aff-dur-moderate) var(--aff-ease);
+}
+
+/* ---------- Report / notification ---------- */
+.aff-report {
+  padding: var(--aff-sp-4) var(--aff-sp-5);
+  border-left: 3px solid var(--aff-support-success);
+  background: var(--aff-layer);
+}
+
+.aff-report--warning {
+  border-left-color: var(--aff-support-warning);
+}
+
+.aff-report--error {
+  border-left-color: var(--aff-support-error);
+}
+
+.aff-report__headline {
+  font-weight: 600;
+  margin: 0 0 var(--aff-sp-2);
+}
+
+.aff-report__detail {
+  margin: 0;
+  font-size: var(--aff-type-helper);
+  color: var(--aff-text-secondary);
+}
+
+/* Screen-reader-only utility */
+.aff-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generate — output preserved across the perf refactor > reuse-mode layout matches the recorded snapshot 1`] = `
+[
+  "0 @ 10.50,41.50 scale=0.7810 angle=0.4994",
+  "1 @ 26.00,15.50 scale=0.8167 angle=-0.0354",
+  "1 @ 43.00,10.50 scale=0.9556 angle=-0.2536",
+  "0 @ 39.00,44.00 scale=0.8955 angle=0.0502",
+  "1 @ 24.50,29.50 scale=0.9585 angle=0.4769",
+  "0 @ 43.00,28.00 scale=0.8753 angle=-0.0639",
+  "0 @ 25.50,46.50 scale=0.8918 angle=-0.1596",
+  "1 @ 10.50,15.50 scale=0.7074 angle=0.1653",
+  "1 @ 7.00,26.00 scale=0.6786 angle=-0.2978",
+]
+`;

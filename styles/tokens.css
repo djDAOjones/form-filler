@@ -1,0 +1,98 @@
+/*
+ * Design tokens — Carbon-style productive light theme (g10), adapted for
+ * WCAG 2.2 AAA. Implemented as our own CSS custom properties; the Carbon
+ * npm package is intentionally NOT a dependency.
+ */
+
+:root {
+  /* Colour — backgrounds and layers */
+  --aff-background: #f4f4f4;       /* Carbon g10 ui-background */
+  --aff-layer: #ffffff;            /* layer-01 */
+  --aff-layer-hover: #e8e8e8;      /* layer-hover-01 */
+  --aff-layer-accent: #e0e0e0;     /* layer-accent-01 */
+  --aff-field: #ffffff;            /* field-01 */
+  --aff-field-hover: #e8e8e8;
+
+  /* Colour — text (all >= 7:1 on their surface for AAA normal text) */
+  --aff-text-primary: #161616;     /* ~16:1 on white */
+  --aff-text-secondary: #525252;   /* ~7.4:1 on white */
+  --aff-text-placeholder: #6f6f6f; /* placeholders only (not essential text) */
+  --aff-text-on-color: #ffffff;
+  --aff-text-error: #da1e28;
+  --aff-text-disabled: #c6c6c6;
+
+  /* Colour — borders */
+  --aff-border-subtle: #c6c6c6;
+  --aff-border-strong: #8d8d8d;
+  --aff-border-inverse: #161616;
+
+  /* Colour — interactive */
+  --aff-interactive: #0f62fe;      /* Carbon blue 60 */
+  --aff-interactive-hover: #0050e6;
+  --aff-interactive-active: #002d9c;
+  --aff-button-secondary: #393939;
+  --aff-button-secondary-hover: #4c4c4c;
+  --aff-button-danger: #da1e28;
+  --aff-button-danger-hover: #b81921;
+  --aff-focus: #0f62fe;
+  --aff-focus-inset: #ffffff;
+
+  /* Colour — support */
+  --aff-support-error: #da1e28;
+  --aff-support-success: #198038;
+  --aff-support-warning: #b28600;
+
+  /* Canvas checkerboard (transparency indicator) */
+  --aff-checker-a: #e0e0e0;
+  --aff-checker-b: #f4f4f4;
+
+  /* Spacing scale (Carbon) */
+  --aff-sp-1: 0.125rem; /* 2px */
+  --aff-sp-2: 0.25rem;  /* 4px */
+  --aff-sp-3: 0.5rem;   /* 8px */
+  --aff-sp-4: 0.75rem;  /* 12px */
+  --aff-sp-5: 1rem;     /* 16px */
+  --aff-sp-6: 1.5rem;   /* 24px */
+  --aff-sp-7: 2rem;     /* 32px */
+  --aff-sp-8: 2.5rem;   /* 40px */
+  --aff-sp-9: 3rem;     /* 48px */
+
+  /* Typography — system stack (IBM Plex not bundled to avoid a dependency) */
+  --aff-font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  --aff-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo,
+    Consolas, monospace;
+
+  /* Type scale (Carbon productive) */
+  --aff-type-caption: 0.75rem;     /* 12px */
+  --aff-type-label: 0.75rem;       /* 12px */
+  --aff-type-helper: 0.75rem;      /* 12px */
+  --aff-type-body: 0.875rem;       /* 14px */
+  --aff-type-body-lg: 1rem;        /* 16px */
+  --aff-type-heading: 1.25rem;     /* 20px */
+  --aff-type-display: 1.75rem;     /* 28px */
+
+  --aff-line-body: 1.43;
+  --aff-line-heading: 1.4;
+
+  /* Control sizing — 44px min target for AAA */
+  --aff-control-height: 2.75rem;   /* 44px */
+  --aff-control-height-sm: 2.5rem; /* 40px (icon buttons keep >=44 hit area via padding) */
+
+  /* Borders / focus */
+  --aff-border-width: 1px;
+  --aff-focus-width: 2px;
+  --aff-radius: 0;                 /* Carbon productive uses square corners */
+
+  /* Motion */
+  --aff-dur-fast: 70ms;
+  --aff-dur-moderate: 150ms;
+  --aff-ease: cubic-bezier(0.2, 0, 0.38, 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --aff-dur-fast: 0ms;
+    --aff-dur-moderate: 0ms;
+  }
+}

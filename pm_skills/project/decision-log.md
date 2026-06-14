@@ -10,17 +10,79 @@
      never paste an entry's prose into those files. -->
 <!-- Append-only: when archiving, move entries verbatim. Never rewrite. -->
 
-<!--
-Example entry (delete when you add your first real one):
+## 2026-06-14 — Placement performance pass (allocation fix; tuning paused)
 
-## 2026-04-12 — Chose Vite over Webpack for bundling
+**Decision:** Cut `rasterizeTransformed`'s per-attempt cost by filling reusable
+module-level scratch `Int32Array`s in a single pass and returning them with a
+valid `count`, instead of growing `number[]`s and copying via `Int32Array.from`.
+Output-preserving. Added a seeded benchmark (`npm run bench`) and a placement
+determinism + containment/overlap + output-snapshot safety net, written and run
+green BEFORE the change.
 
-**Decision:** Use Vite as the build tool.
+**Rationale:** Per-attempt allocation/GC dominated the hot loop. The scratch
+buffers are allocation-free per attempt; all consumers (`canPlace`,
+`stampOccupancy`, the placement loops) already iterate by `count`, never
+`xs.length`, so nothing else changed. Result: reuse ~1.43×, use-each-once
+~1.25× faster; snapshot identical; 25 tests green; build clean.
 
-**Rationale:** Faster dev server, simpler config, good enough for
-production builds at this project's scale.
+**Contract:** returned `xs`/`ys` are shared buffers — valid only until the next
+`rasterizeTransformed` call, possibly longer than `count`. The placement loop
+fully consumes each transform (no `await` while one is live), so this holds.
+
+**Tuning paused:** a sweep showed `PLACEMENT_MAX_DIM` is the dominant lever
+(600≈−29%, 500≈−55%, 400≈−71%, ~quadratic). It is output-changing (packing
+precision, NOT export quality — render composites originals), so it needs a
+visual sign-off; deferred to a follow-up.
+
+**Alternatives:** exact-size `slice` per call (owned arrays, simpler contract
+but still 2 allocs/attempt) — rejected for the zero-alloc scratch since
+consumers honor `count`. Lowering `SOURCE_MAX_DIM` — rejected: transformed size
+∝ target longest side, so it barely affects speed but cuts fidelity.
+
+**Link:** trajectory.md → "Performance pass".
+
+## 2026-06-13 — MVP foundation + first build (init-mvp)
+
+**Decision:** Build the Artwork Form Filler MVP as a browser-only
+React 18 + TypeScript + Vite SPA using a raster-mask/Canvas 2D approach.
+Runtime deps limited to `react`/`react-dom`; UI is Carbon-style productive,
+implemented in our own CSS tokens (`--aff-*`) with no UI-framework or
+Carbon-package dependency. Vitest covers the pure geometry functions.
+
+**Rationale:** The user specified the stack and a raster-first approach.
+Masks (Uint8Array) make containment/collision exact and alpha-aware, are
+cheap to test, and keep the algorithm readable. Placement runs on downscaled
+masks (`PLACEMENT_MAX_DIM` 700, `SOURCE_MAX_DIM` 360) for speed while render
+composites the original full-res images for quality. Generation is chunked
+(batches + `setTimeout` yields) so the UI never freezes, and seeded
+(mulberry32) so a seed + settings reproduce a layout.
+
+**Key algorithm choices / assumptions:**
+
+- Containment uses the target mask **eroded** by edge padding; spacing is
+  applied by **dilating** committed pieces into the occupancy mask (disk
+  offsets). A single `canPlace` pass tests bounds + target + occupancy.
+- Target inside-region detection: `auto` = alpha if the image has
+  transparency else dark-is-inside; plus `alpha`/`dark`/`light` modes and an
+  Invert toggle.
+- Reuse mode fills toward `density · targetArea`; use-each-once derives a base
+  scale from `√(density·targetArea / Σ sourceArea)`, places largest-first, and
+  shrinks the global scale (×0.88, up to 6 retries) until all fit, reporting
+  "Placed X of N".
+- The two "reuse" toggles are modelled as a single mutually-exclusive radio
+  group (better UX than two conflicting toggles).
+- Render is WYSIWYG with export: only silhouettes on a transparent canvas.
 
 **Alternatives considered:**
-- Webpack: more mature but heavier config burden.
-- esbuild direct: fast but less ecosystem support for plugins.
--->
+
+- Vector/SVG nesting or polygon packing — rejected per brief (raster MVP first).
+- Carbon npm package / Tailwind / shadcn — rejected for the minimal-dependency
+  rule; Carbon language implemented in own CSS instead.
+- Per-attempt re-dilation of the whole occupancy mask — rejected for cost;
+  stamp dilated pieces once at commit time instead.
+
+**Fix:** `rasterizeTransformed` subtracts a 1e-9 epsilon before `ceil` so
+floating-point noise (90° rotation → 1.0000000000000002) doesn't inflate the
+transformed bbox by a pixel. Caught by a regression test.
+
+**Link:** trajectory.md → "MVP".

@@ -32,20 +32,27 @@ spacing, sizing, and visual conventions.
 
 ### Token systems
 
-<!-- CUSTOMISE: Define the token systems used by this project and how
-     they relate to Carbon conventions. If the project uses a brand
-     palette alongside Carbon structural tokens, describe both systems
-     and state that they must not be collapsed into one. Example:
+All design tokens live in `styles/tokens.css` as CSS custom properties
+prefixed `--aff-`. They implement Carbon's productive (g10 light) design
+language in the project's own code — the Carbon npm package is **not** a
+dependency.
 
-Two token systems run side by side:
-
-| System | Governs | Source |
+| Group | Governs | Examples |
 | --- | --- | --- |
-| **Project tokens** (`tokens.css`) | Brand palette, semantic UI colours | `styles/tokens.css` |
-| **Carbon conventions** | Spacing scale, typography scale, layout grid, layer tokens, border tokens, interaction state tokens | Implemented to match Carbon spec |
+| **Colour** | Backgrounds, layers, text, borders, interactive, support | `--aff-layer`, `--aff-text-primary`, `--aff-interactive`, `--aff-support-error` |
+| **Spacing** | Carbon spacing scale (2–48px) | `--aff-sp-1` … `--aff-sp-9` |
+| **Typography** | Font stack and Carbon productive type scale | `--aff-font-sans`, `--aff-type-body`, `--aff-type-heading` |
+| **Sizing / borders / focus** | Control heights (≥ 44px), border + focus widths | `--aff-control-height`, `--aff-focus-width` |
+| **Motion** | Durations + easing, zeroed under `prefers-reduced-motion` | `--aff-dur-fast`, `--aff-ease` |
 
-Do not collapse one into the other. When adding new tokens, decide
-which system owns it based on the table above. -->
+Rules:
+
+- Use a token for any colour, spacing, type, border, or motion value. Do not
+  hard-code ad hoc UI values where a token exists.
+- Text colours are chosen for **7:1** contrast on their surface (AAA). Do not
+  introduce lighter text for essential content.
+- Layout and component rules live in `styles/app.css`; `tokens.css` holds
+  values only. Keep that separation.
 
 ---
 
