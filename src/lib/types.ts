@@ -55,6 +55,8 @@ export interface Settings {
   /** Min/max silhouette size as a fraction of the target's longest side, 0..1. */
   minSize: number;
   maxSize: number;
+  /** When true, derive one uniform fill scale from the area budget (overrides min/max in reuse mode). */
+  autoFit: boolean;
   /** Spacing between silhouettes, in target pixels. */
   spacing: number;
   /** Padding from the target edge, in target pixels. */
@@ -124,6 +126,7 @@ export const DEFAULT_SETTINGS: Settings = {
   density: 0.6,
   minSize: 0.08,
   maxSize: 0.22,
+  autoFit: false,
   spacing: 4,
   edgePadding: 6,
   angleVariation: 'pm30',

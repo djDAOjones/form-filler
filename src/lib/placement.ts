@@ -190,6 +190,10 @@ async function runReuseMode(ctx: ModeContext): Promise<GenerateResult> {
   } = ctx;
 
   const coverageTarget = settings.density * fullInsideArea;
+  // Auto-fit: one uniform scale from the area budget (the provided set covers
+  // ~density·area), used instead of random per-piece sizing.
+  const sumArea = sources.reduce((sum, s) => sum + s.area, 0);
+  const autoScale = Math.sqrt((settings.density * fullInsideArea) / Math.max(1, sumArea));
   const placements: Placement[] = [];
   let covered = 0;
   let attempts = 0;
@@ -201,8 +205,13 @@ async function runReuseMode(ctx: ModeContext): Promise<GenerateResult> {
       attempts++;
       const sourceIndex = rng.int(0, sources.length - 1);
       const src = sources[sourceIndex];
-      const f = rng.range(settings.minSize, settings.maxSize);
-      const scale = (f * targetLong) / src.longSide;
+      let scale: number;
+      if (settings.autoFit) {
+        scale = autoScale * (1 + rng.range(-settings.sizeVariation, settings.sizeVariation));
+      } else {
+        const f = rng.range(settings.minSize, settings.maxSize);
+        scale = (f * targetLong) / src.longSide;
+      }
       if (!(scale > 0)) continue;
       const angle = sampleAngle(rng, settings.angleVariation);
       const t = rasterizeTransformed(src.mask, scale, angle);

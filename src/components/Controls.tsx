@@ -75,27 +75,46 @@ export default function Controls({ settings, disabled, onChange }: ControlsProps
         helper="How much of the target to fill."
       />
 
-      <LabeledRange
-        label="Minimum size"
-        value={settings.minSize}
-        min={0.02}
-        max={0.6}
-        step={0.01}
-        disabled={disabled}
-        format={pct}
-        onChange={(v) => onChange({ minSize: Math.min(v, settings.maxSize) })}
-      />
-      <LabeledRange
-        label="Maximum size"
-        value={settings.maxSize}
-        min={0.02}
-        max={0.6}
-        step={0.01}
-        disabled={disabled}
-        format={pct}
-        onChange={(v) => onChange({ maxSize: Math.max(v, settings.minSize) })}
-        helper="Size relative to the target's longest side."
-      />
+      <div className="aff-field">
+        <label className="aff-check">
+          <input
+            type="checkbox"
+            checked={settings.autoFit}
+            disabled={disabled}
+            onChange={(e) => onChange({ autoFit: e.target.checked })}
+          />
+          <span className="aff-check__text">Auto-fit size to the shape</span>
+        </label>
+        <span className="aff-helper">
+          Sizes silhouettes automatically to fill the shape; overrides Min/Max size.
+        </span>
+      </div>
+
+      {!settings.autoFit ? (
+        <>
+          <LabeledRange
+            label="Minimum size"
+            value={settings.minSize}
+            min={0.02}
+            max={0.6}
+            step={0.01}
+            disabled={disabled}
+            format={pct}
+            onChange={(v) => onChange({ minSize: Math.min(v, settings.maxSize) })}
+          />
+          <LabeledRange
+            label="Maximum size"
+            value={settings.maxSize}
+            min={0.02}
+            max={0.6}
+            step={0.01}
+            disabled={disabled}
+            format={pct}
+            onChange={(v) => onChange({ maxSize: Math.max(v, settings.minSize) })}
+            helper="Size relative to the target's longest side."
+          />
+        </>
+      ) : null}
 
       <LabeledRange
         label="Spacing"

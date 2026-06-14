@@ -87,6 +87,14 @@ describe('generate — determinism', () => {
     const b = await run(onceSettings);
     expect(a.placements).toEqual(b.placements);
   });
+
+  it('auto-fit reuse mode reproduces an identical layout for a fixed seed', async () => {
+    const autoFit: Settings = { ...reuseSettings, autoFit: true };
+    const a = await run(autoFit);
+    const b = await run(autoFit);
+    expect(a.placements).toEqual(b.placements);
+    expect(a.placements.length).toBeGreaterThan(0);
+  });
 });
 
 describe('generate — placement correctness invariant', () => {
