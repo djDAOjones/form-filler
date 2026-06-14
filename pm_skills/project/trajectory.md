@@ -17,6 +17,14 @@
      moves the oldest phases to archive/trajectory/trajectory-NNNN-<range>.md and
      adds a row to archive/INDEX.md. Archives are append-only; never rewrite. -->
 
+## Presets, high-res export & auto-fit (shipped 2026-06-14)
+
+- FEAT-PRESETS — bundled example shapes + fillers under `src/assets/presets/` (`import.meta.glob`); sidebar preset pickers; first-run demo auto-loads + auto-generates (localStorage-guarded). Commit bbb7550.
+- FEAT-EXPORT — export decoupled from preview: preview at `PREVIEW_MAX_DIM` (1400px), export rendered offscreen at a chosen size (2048/3600/4800px, default 3600) with a dimensions readout. Commit 2a0b21b.
+- FEAT-AUTOFIT — "Auto-fit size" toggle sizes reuse-mode pieces by one uniform area-budget scale (matching use-each-once); hides Min/Max when on.
+
+Outcome: app opens on a working example; t-shirt-ready high-res PNG export; one-click auto-sizing. 26 tests green, build clean. See decision-log 2026-06-14.
+
 ## Performance pass — placement allocation fix (shipped 2026-06-14)
 
 - PERF-A — `rasterizeTransformed` fills reusable module scratch buffers (borrowed-buffer contract; consumers honor `count`) instead of per-attempt `number[]` + `Int32Array.from`; output-preserving, ~1.43×/1.25× faster (reuse / use-each-once). Added a seeded benchmark (`npm run bench`) + a placement determinism / containment-overlap / output-snapshot safety net. See decision-log 2026-06-14.

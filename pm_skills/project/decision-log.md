@@ -10,6 +10,34 @@
      never paste an entry's prose into those files. -->
 <!-- Append-only: when archiving, move entries verbatim. Never rewrite. -->
 
+## 2026-06-14 — Presets, high-res export & auto-fit (feature milestone)
+
+**Decision:** Three user-requested features. (1) Bundle example shapes
+(targets) + filler silhouettes (sources) under `src/assets/presets/`,
+collected via `import.meta.glob`; on first run with no content, auto-load a
+default shape + the filler set (localStorage-guarded) and auto-generate so the
+app opens on a finished example. (2) Decouple export from preview: the live
+preview renders at `PREVIEW_MAX_DIM` (1400px); export renders offscreen at a
+user-chosen size (`EXPORT_DIMS` 2048/3600/4800px, default 3600) via
+`exportComposition`. (3) Add an `autoFit` toggle that sizes reuse-mode pieces
+by one uniform area-budget scale `√(density·area / Σ area)` — the formula
+use-each-once already uses — overriding Min/Max.
+
+**Rationale:** The request's folder labels were swapped; contents confirmed
+shapes = targets, fillers = sources. Export was target-native (floor 1200px),
+too low for t-shirt print; export quality is independent of placement
+resolution because render composites the originals. `autoFit` defaults false
+and its false-path keeps the exact rng sequence, so the placement
+determinism/snapshot tests are unchanged.
+
+**Alternatives:** export size in `Settings` (rejected — not a generation input;
+kept as separate App state); `public/` + hand-written manifest (rejected for
+`import.meta.glob` auto-registration).
+
+**Caveat:** export sharpness is capped by the filler PNGs' own resolution.
+
+**Link:** trajectory.md → "Presets, high-res export & auto-fit".
+
 ## 2026-06-14 — Placement performance pass (allocation fix; tuning paused)
 
 **Decision:** Cut `rasterizeTransformed`'s per-attempt cost by filling reusable

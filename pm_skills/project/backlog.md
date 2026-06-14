@@ -15,9 +15,9 @@
 
 ### Current milestone
 
-- [ ] Bundled presets + auto-load demo — ship the example shapes (targets) + filler silhouettes as in-app presets under `src/assets/presets/`; preset pickers in the Target/Sources sections; on first launch with no content, auto-load a default shape + the filler set (localStorage guard) and run an initial generate so the app opens on a finished example.
-- [ ] High-res export (t-shirt) — add an Export size selector decoupled from target-native size; render the live preview at ≤~1500px and render export to an offscreen canvas at the chosen size. Presets 2048/3600/4800 px (≈7"/12"/16" @300 DPI), default 3600. Export sharpness is capped by the filler PNGs' own resolution.
-- [ ] Auto-fit scaling toggle — "Auto-fit size" overrides the manual min/max sliders with one global size `s = √(targetArea·density / Σ fillerArea)`: fits the provided images into the shape at the largest uniform size within the density budget (each-once fits them all; reuse repeats at that size to close gaps).
+<!-- Presets + auto-load demo, high-res export, and auto-fit scaling shipped
+     2026-06-14 — see trajectory.md → "Presets, high-res export & auto-fit". -->
+<!-- Next batch is unscoped; pull from Next milestone / Icebox below. -->
 
 ### Next milestone
 

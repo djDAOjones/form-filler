@@ -10,16 +10,18 @@
 
 - `index.html` — Vite HTML entry.
 - `src/main.tsx` — mounts React into `#root`, imports global CSS.
+- `src/vite-env.d.ts` — Vite client types (`import.meta.glob`, asset-URL modules).
 
 ## Core modules
 
 - `src/lib/types.ts` — shared types (Mask, SourceItem, Placement, Settings, report) + `DEFAULT_SETTINGS` and tuneable constants.
 - `src/lib/rng.ts` — seedable mulberry32 PRNG (`Rng`) + `randomSeed`.
-- `src/lib/imageLoading.ts` — File → image → ImageData at capped resolution; loads target + source items.
+- `src/lib/imageLoading.ts` — File → image → ImageData at capped resolution; loads target + source items (incl. `loadTargetFromUrl`/`loadSourceFromUrl` for bundled presets).
+- `src/lib/presets.ts` — bundled example presets (shapes + fillers) collected from `src/assets/presets/` via `import.meta.glob`.
 - `src/lib/mask.ts` — build target/source masks, trim to visible bounds, erode (edge padding), disk offsets (spacing).
 - `src/lib/transform.ts` — rasterise scaled+rotated source mask (reusable scratch buffers; borrowed `xs`/`ys` valid until next call, read by `count`); containment + collision test (`canPlace`); occupancy stamping.
 - `src/lib/placement.ts` — the chunked, seedable placement algorithm (reuse + use-each-once modes); returns placements + report.
-- `src/lib/render.ts` — composite full-res sources to canvas; export transparent PNG.
+- `src/lib/render.ts` — composite full-res sources to canvas at a given output size (preview vs export decoupled); `exportComposition` renders offscreen + downloads a transparent PNG.
 
 ## UI
 
@@ -39,7 +41,8 @@
 ## Config and constants
 
 - `package.json`, `tsconfig.json`, `tsconfig.node.json`, `vite.config.ts`.
-- Tuneable algorithm values live in `src/lib/types.ts` (`DEFAULT_SETTINGS`, `*_MAX_DIM`).
+- Tuneable algorithm values live in `src/lib/types.ts` (`DEFAULT_SETTINGS`, `*_MAX_DIM`, `PREVIEW_MAX_DIM`, `EXPORT_DIMS`).
+- `src/assets/presets/{shapes,fillers}/` — bundled example PNGs (preset shapes + filler silhouettes).
 
 ## Tests
 
