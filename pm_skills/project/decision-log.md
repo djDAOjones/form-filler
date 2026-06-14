@@ -10,6 +10,33 @@
      never paste an entry's prose into those files. -->
 <!-- Append-only: when archiving, move entries verbatim. Never rewrite. -->
 
+## 2026-06-14 — Seed-on-load + preview backdrop (auto-jazz)
+
+**Decision:** Two UX-polish features run via auto-jazz. (1) Initialise the
+live seed to `randomSeed()` once per load with a lazy `useState`;
+`DEFAULT_SETTINGS.seed` stays `1` so defaults/tests are deterministic.
+(2) Draw the target shape faintly (alpha 0.12) behind the silhouettes in the
+**preview canvas only**, via a new optional `RenderOptions.backdrop` on
+`renderToCanvas`; `exportComposition` never passes it, so the exported PNG
+stays silhouettes-on-transparent. The preview renders whenever a target
+exists (shape visible before *and* after generation); a "Show shape" toggle
+(default on) controls it, and the empty-state guidance floats over the faint
+shape (hidden while generating).
+
+**Rationale:** Backdrop-in-the-preview-canvas (vs a separate DOM `<img>`
+layer) guarantees pixel-perfect alignment with the silhouette coordinate
+space and keeps export clean — export simply omits the option. Both changes
+are output-preserving for the test suite.
+
+**Auto-jazz scope call (assumptions, no user input):** implemented only the
+two safe/output-preserving items. Deferred — Web Worker (skipped per
+"commit-or-skip on perf numbers": `generate` is <100ms typical and chunked);
+source attempt cache + placement-resolution tuning (output-changing → need a
+visual sign-off); Icebox (vector nesting [rejected per brief], multi-region,
+persistence, undo/redo → large, need product direction).
+
+**Link:** trajectory.md → "Preview & seed UX".
+
 ## 2026-06-14 — Presets, high-res export & auto-fit (feature milestone)
 
 **Decision:** Three user-requested features. (1) Bundle example shapes

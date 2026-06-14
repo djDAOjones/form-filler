@@ -21,14 +21,14 @@
 - `src/lib/mask.ts` — build target/source masks, trim to visible bounds, erode (edge padding), disk offsets (spacing).
 - `src/lib/transform.ts` — rasterise scaled+rotated source mask (reusable scratch buffers; borrowed `xs`/`ys` valid until next call, read by `count`); containment + collision test (`canPlace`); occupancy stamping.
 - `src/lib/placement.ts` — the chunked, seedable placement algorithm (reuse + use-each-once modes); returns placements + report.
-- `src/lib/render.ts` — composite full-res sources to canvas at a given output size (preview vs export decoupled); `exportComposition` renders offscreen + downloads a transparent PNG.
+- `src/lib/render.ts` — composite full-res sources to canvas at a given output size (preview vs export decoupled); optional preview-only `backdrop` (faint target, never exported); `exportComposition` renders offscreen + downloads a transparent PNG.
 
 ## UI
 
 - `src/components/App.tsx` — state owner + generation orchestration.
 - `src/components/Uploaders.tsx` — target + source uploaders (drag/drop, click, keyboard), mask mode + invert.
 - `src/components/Controls.tsx` — all generation settings.
-- `src/components/CanvasStage.tsx` — preview canvas, toolbar, progress, empty states.
+- `src/components/CanvasStage.tsx` — preview canvas, toolbar (export size + "Show shape" backdrop toggle), progress, empty states.
 - `src/components/Report.tsx` — placement report banner.
 - `src/components/icons.tsx` — inline SVG icons (no icon-library dependency).
 

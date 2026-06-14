@@ -17,6 +17,13 @@
      moves the oldest phases to archive/trajectory/trajectory-NNNN-<range>.md and
      adds a row to archive/INDEX.md. Archives are append-only; never rewrite. -->
 
+## Preview & seed UX (shipped 2026-06-14)
+
+- FEAT-SEED — live seed initialises to a fresh `randomSeed()` once per load (lazy `useState`); `DEFAULT_SETTINGS.seed` stays deterministic for defaults/tests.
+- FEAT-BACKDROP — faint target shape (alpha 0.12) behind silhouettes in the preview only (`RenderOptions.backdrop`; export omits it); visible before & after generation; "Show shape" toggle (default on).
+
+Outcome: each load starts from a fresh layout; the shape is always visible behind the fill without polluting the export. 26 tests green, build clean. Auto-jazz run — see decision-log 2026-06-14 for the deferral calls.
+
 ## Presets, high-res export & auto-fit (shipped 2026-06-14)
 
 - FEAT-PRESETS — bundled example shapes + fillers under `src/assets/presets/` (`import.meta.glob`); sidebar preset pickers; first-run demo auto-loads + auto-generates (localStorage-guarded). Commit bbb7550.

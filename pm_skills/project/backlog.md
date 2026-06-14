@@ -21,8 +21,9 @@
 
 ### Next milestone
 
-- [ ] Random seed on app load — initialise the live seed to a fresh random value once per load (lazy `useState` in `App.tsx`); keep `DEFAULT_SETTINGS.seed` deterministic so defaults/tests stay pure. The other five seed behaviours the user specified (fixed-until-changed, Generate/Regenerate reuse, Randomise auto-generates once target+sources exist, manual edits don't auto-run) already match the code as of 2026-06-13.
-- [ ] Preview polish — optional faint target backdrop behind the silhouettes (preview only, never exported) so the shape is visible before/after generation.
+<!-- Seed-on-load + preview backdrop shipped 2026-06-14 — see trajectory.md
+     → "Preview & seed UX". -->
+
 - [ ] Generation Web Worker (perf follow-up #1) — move `generate()` off-thread so the UI never blocks regardless of job size (pass masks/geometry only, never the `HTMLImageElement`; cancel via `terminate()`; progress via `postMessage`; no-worker fallback). Commit or skip based on the Performance-pass numbers. Land before the source attempt cache so its savings run off-thread.
 - [ ] Source attempt cache (perf follow-up #2) — reuse rasterised transforms across candidate positions (quantised by angle/scale) to cut per-attempt recompute; output-changing, so land after the Web Worker.
 - [ ] Placement-resolution tuning (perf follow-up) — lower `PLACEMENT_MAX_DIM` (sweep 2026-06-14: 600≈−29%, 500≈−55%, 400≈−71%, ~quadratic); output-changing (packing precision, not export quality), needs a visual sign-off. Paused mid-comparison.
