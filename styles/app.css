@@ -482,6 +482,22 @@ body {
   color: var(--aff-text-secondary);
 }
 
+/* ---------- Preset pickers ---------- */
+.aff-preset {
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.aff-preset:not(:disabled):hover {
+  border-color: var(--aff-interactive);
+}
+
+.aff-preset[aria-pressed='true'] {
+  outline: var(--aff-focus-width) solid var(--aff-interactive);
+  outline-offset: -2px;
+}
+
 /* Screen-reader-only utility */
 .aff-visually-hidden {
   position: absolute;

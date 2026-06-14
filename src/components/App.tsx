@@ -8,8 +8,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_SETTINGS } from '../lib/types';
 import type { Placement, PlacementReport, Settings, SourceItem } from '../lib/types';
-import { loadSource, loadTarget } from '../lib/imageLoading';
+import { loadSource, loadTarget, loadSourceFromUrl, loadTargetFromUrl } from '../lib/imageLoading';
 import type { TargetData } from '../lib/imageLoading';
+import { PRESET_FILLERS, PRESET_SHAPES, DEFAULT_DEMO_SHAPE } from '../lib/presets';
+import type { PresetItem } from '../lib/presets';
 import { buildTargetMask } from '../lib/mask';
 import { generate } from '../lib/placement';
 import { exportCanvasPng, renderToCanvas } from '../lib/render';
@@ -28,9 +30,12 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [targetPresetId, setTargetPresetId] = useState<string | null>(null);
+  const [autoGenPending, setAutoGenPending] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const didBootstrap = useRef(false);
 
   const hasResult = !!placements && placements.length > 0;
   const canGenerate = !!target && sources.length > 0 && !isGenerating;
@@ -62,6 +67,7 @@ export default function App() {
       });
       setPlacements(null);
       setReport(null);
+      setTargetPresetId(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Could not load the target image.');
     }
@@ -74,6 +80,7 @@ export default function App() {
     });
     setPlacements(null);
     setReport(null);
+    setTargetPresetId(null);
   }, []);
 
   const handleSourcesAdd = useCallback(async (files: File[]) => {
@@ -99,6 +106,68 @@ export default function App() {
       prev.forEach((s) => URL.revokeObjectURL(s.url));
       return [];
     });
+  }, []);
+
+  const handleTargetPreset = useCallback(async (preset: PresetItem) => {
+    setLoadError(null);
+    try {
+      const data = await loadTargetFromUrl(preset.url, `${preset.label}.png`);
+      setTarget((prev) => {
+        if (prev) URL.revokeObjectURL(prev.url);
+        return data;
+      });
+      setTargetPresetId(preset.id);
+      setPlacements(null);
+      setReport(null);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Could not load the example shape.');
+    }
+  }, []);
+
+  const handleLoadExampleSources = useCallback(async () => {
+    setLoadError(null);
+    try {
+      const loaded = await Promise.all(
+        PRESET_FILLERS.map((p) => loadSourceFromUrl(p.url, `${p.label}.png`)),
+      );
+      setSources((prev) => [...prev, ...loaded]);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Could not load the example silhouettes.');
+    }
+  }, []);
+
+  // First-run demo: auto-load a shape + the filler set once, when empty.
+  useEffect(() => {
+    if (didBootstrap.current) return;
+    didBootstrap.current = true;
+    if (target || sources.length > 0) return;
+    try {
+      if (localStorage.getItem('aff-demo-loaded')) return;
+    } catch {
+      /* storage unavailable — fall through and load the demo */
+    }
+    const shape = DEFAULT_DEMO_SHAPE;
+    if (!shape) return;
+    (async () => {
+      try {
+        const [targetData, sourceItems] = await Promise.all([
+          loadTargetFromUrl(shape.url, `${shape.label}.png`),
+          Promise.all(PRESET_FILLERS.map((p) => loadSourceFromUrl(p.url, `${p.label}.png`))),
+        ]);
+        setTarget(targetData);
+        setTargetPresetId(shape.id);
+        setSources(sourceItems);
+        setAutoGenPending(true);
+        try {
+          localStorage.setItem('aff-demo-loaded', '1');
+        } catch {
+          /* ignore storage write errors */
+        }
+      } catch {
+        /* demo content is best-effort; ignore load failures */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const runGeneration = useCallback(
@@ -143,6 +212,15 @@ export default function App() {
   );
 
   const handleGenerate = useCallback(() => runGeneration(settings), [runGeneration, settings]);
+
+  // Run the initial generation once first-run demo content is in place.
+  useEffect(() => {
+    if (!autoGenPending) return;
+    if (!target || sources.length === 0) return;
+    setAutoGenPending(false);
+    runGeneration(settings);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoGenPending, target, sources]);
 
   const handleRandomiseSeed = useCallback(() => {
     const next = { ...settings, seed: randomSeed() };
@@ -215,13 +293,17 @@ export default function App() {
             maskMode={settings.maskMode}
             invertMask={settings.invertMask}
             sources={sources}
+            shapePresets={PRESET_SHAPES}
+            targetPresetId={targetPresetId}
             onTargetFile={handleTargetFile}
             onTargetClear={handleTargetClear}
+            onTargetPreset={handleTargetPreset}
             onMaskModeChange={(maskMode) => updateSettings({ maskMode })}
             onInvertChange={(invertMask) => updateSettings({ invertMask })}
             onSourcesAdd={handleSourcesAdd}
             onSourceRemove={handleSourceRemove}
             onSourcesClear={handleSourcesClear}
+            onLoadExampleSources={handleLoadExampleSources}
           />
 
           <Controls settings={settings} disabled={isGenerating} onChange={updateSettings} />

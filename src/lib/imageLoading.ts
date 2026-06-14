@@ -95,3 +95,21 @@ export async function loadSource(file: File): Promise<SourceItem> {
     trim,
   };
 }
+
+/** Fetch a bundled/static asset URL into a File so the standard loaders apply. */
+async function urlToFile(url: string, name: string): Promise<File> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Could not fetch preset image: ${name}`);
+  const blob = await res.blob();
+  return new File([blob], name, { type: blob.type || 'image/png' });
+}
+
+/** Load a target shape from a bundled preset URL. */
+export async function loadTargetFromUrl(url: string, name: string): Promise<TargetData> {
+  return loadTarget(await urlToFile(url, name));
+}
+
+/** Load a source silhouette from a bundled preset URL. */
+export async function loadSourceFromUrl(url: string, name: string): Promise<SourceItem> {
+  return loadSource(await urlToFile(url, name));
+}

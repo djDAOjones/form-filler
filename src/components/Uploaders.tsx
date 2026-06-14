@@ -2,6 +2,7 @@
 import { useId, useState } from 'react';
 import type { MaskMode, SourceItem } from '../lib/types';
 import type { TargetData } from '../lib/imageLoading';
+import type { PresetItem } from '../lib/presets';
 import { UploadIcon, CloseIcon } from './icons';
 
 interface DropzoneProps {
@@ -55,13 +56,17 @@ interface UploadersProps {
   maskMode: MaskMode;
   invertMask: boolean;
   sources: SourceItem[];
+  shapePresets: PresetItem[];
+  targetPresetId: string | null;
   onTargetFile: (file: File) => void;
   onTargetClear: () => void;
+  onTargetPreset: (preset: PresetItem) => void;
   onMaskModeChange: (mode: MaskMode) => void;
   onInvertChange: (invert: boolean) => void;
   onSourcesAdd: (files: File[]) => void;
   onSourceRemove: (id: string) => void;
   onSourcesClear: () => void;
+  onLoadExampleSources: () => void;
 }
 
 export default function Uploaders(props: UploadersProps) {
@@ -93,6 +98,26 @@ export default function Uploaders(props: UploadersProps) {
             onFiles={(files) => props.onTargetFile(files[0])}
           />
         )}
+
+        {props.shapePresets.length > 0 ? (
+          <div className="aff-field" style={{ marginTop: 'var(--aff-sp-5)' }}>
+            <span className="aff-label">Example shapes</span>
+            <div className="aff-thumbs">
+              {props.shapePresets.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="aff-thumb aff-preset"
+                  aria-label={`Use ${p.label} as the target shape`}
+                  aria-pressed={p.id === props.targetPresetId}
+                  onClick={() => props.onTargetPreset(p)}
+                >
+                  <img src={p.url} alt="" />
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="aff-field" style={{ marginTop: 'var(--aff-sp-5)' }}>
           <label className="aff-label" htmlFor={maskModeId}>
@@ -133,6 +158,15 @@ export default function Uploaders(props: UploadersProps) {
           multiple
           onFiles={props.onSourcesAdd}
         />
+
+        <button
+          type="button"
+          className="aff-btn aff-btn--ghost aff-btn--full"
+          style={{ marginTop: 'var(--aff-sp-4)' }}
+          onClick={props.onLoadExampleSources}
+        >
+          Load example silhouettes
+        </button>
 
         {props.sources.length === 0 ? (
           <p className="aff-helper" style={{ marginTop: 'var(--aff-sp-4)' }}>
