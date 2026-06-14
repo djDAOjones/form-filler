@@ -23,7 +23,12 @@ import CanvasStage from './CanvasStage';
 import { PlayIcon, RefreshIcon, DiceIcon, DownloadIcon } from './icons';
 
 export default function App() {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  // Seed starts at a fresh random value once per load; DEFAULT_SETTINGS.seed
+  // stays deterministic so defaults/tests are pure.
+  const [settings, setSettings] = useState<Settings>(() => ({
+    ...DEFAULT_SETTINGS,
+    seed: randomSeed(),
+  }));
   const [target, setTarget] = useState<TargetData | null>(null);
   const [sources, setSources] = useState<SourceItem[]>([]);
   const [placements, setPlacements] = useState<Placement[] | null>(null);
@@ -34,6 +39,7 @@ export default function App() {
   const [targetPresetId, setTargetPresetId] = useState<string | null>(null);
   const [autoGenPending, setAutoGenPending] = useState(false);
   const [exportLongSide, setExportLongSide] = useState<number>(DEFAULT_EXPORT_DIM);
+  const [showBackdrop, setShowBackdrop] = useState(true);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -54,16 +60,30 @@ export default function App() {
     };
   }, [placements, target, sources]);
 
-  // Re-render the (light) preview canvas whenever the composition changes.
+  // Re-render the (light) preview canvas whenever the composition, target, or
+  // backdrop toggle changes. Renders the faint target shape even before a
+  // result so the shape is visible pre-generation (preview only — never exported).
   useEffect(() => {
-    const params = buildRenderParams();
-    if (!params || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas || !target) return;
     const previewLong = Math.min(
-      Math.max(params.targetWidth, params.targetHeight),
+      Math.max(target.naturalWidth, target.naturalHeight),
       PREVIEW_MAX_DIM,
     );
-    renderToCanvas(canvasRef.current, params, previewLong);
-  }, [buildRenderParams]);
+    renderToCanvas(
+      canvas,
+      {
+        placements: placements ?? [],
+        sources,
+        placementWidth: target.imageData.width,
+        placementHeight: target.imageData.height,
+        targetWidth: target.naturalWidth,
+        targetHeight: target.naturalHeight,
+      },
+      previewLong,
+      { backdrop: showBackdrop ? target.image : undefined },
+    );
+  }, [placements, target, sources, showBackdrop]);
 
   // Resulting export dimensions for the chosen size (toolbar readout).
   const exportDims = useMemo(() => {
@@ -351,7 +371,9 @@ export default function App() {
           report={report}
           exportLongSide={exportLongSide}
           exportDims={exportDims}
+          showBackdrop={showBackdrop}
           onExportLongSideChange={setExportLongSide}
+          onShowBackdropChange={setShowBackdrop}
           onCancel={handleCancel}
         />
       </div>

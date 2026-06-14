@@ -37,10 +37,18 @@ function outputSize(
  * Draw the composition onto `canvas` (sized to the export resolution). The
  * background stays transparent; only the placed silhouettes are drawn.
  */
+export interface RenderOptions {
+  /** Faint target image drawn behind the silhouettes — PREVIEW ONLY, never passed for export. */
+  backdrop?: HTMLImageElement;
+  /** Backdrop opacity, 0..1. Defaults to 0.12. */
+  backdropAlpha?: number;
+}
+
 export function renderToCanvas(
   canvas: HTMLCanvasElement,
   params: RenderParams,
   outputLong: number,
+  opts?: RenderOptions,
 ): void {
   const { width, height, ratio } = outputSize(params, outputLong);
   canvas.width = width;
@@ -51,6 +59,15 @@ export function renderToCanvas(
   ctx.clearRect(0, 0, width, height);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
+
+  // Faint target backdrop (preview only). Export never passes this, so the
+  // exported PNG stays silhouettes-on-transparent.
+  if (opts?.backdrop) {
+    ctx.save();
+    ctx.globalAlpha = opts.backdropAlpha ?? 0.12;
+    ctx.drawImage(opts.backdrop, 0, 0, width, height);
+    ctx.restore();
+  }
 
   for (const placement of params.placements) {
     const src = params.sources[placement.sourceIndex];

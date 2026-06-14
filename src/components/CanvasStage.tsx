@@ -15,7 +15,9 @@ interface CanvasStageProps {
   report: PlacementReport | null;
   exportLongSide: number;
   exportDims: { w: number; h: number } | null;
+  showBackdrop: boolean;
   onExportLongSideChange: (value: number) => void;
+  onShowBackdropChange: (value: boolean) => void;
   onCancel: () => void;
 }
 
@@ -52,6 +54,16 @@ export default function CanvasStage(props: CanvasStageProps) {
           {status}
         </span>
         <div className="aff-stage__toolbar-right">
+          {props.hasTarget ? (
+            <label className="aff-check aff-check--inline">
+              <input
+                type="checkbox"
+                checked={props.showBackdrop}
+                onChange={(e) => props.onShowBackdropChange(e.target.checked)}
+              />
+              <span className="aff-check__text">Show shape</span>
+            </label>
+          ) : null}
           {props.hasResult && !props.isGenerating ? (
             <div className="aff-stage__export">
               <label className="aff-label" htmlFor={exportSizeId}>
@@ -108,10 +120,16 @@ export default function CanvasStage(props: CanvasStageProps) {
           className="aff-canvas"
           role="img"
           aria-label="Generated composition"
-          style={{ display: props.hasResult ? 'block' : 'none' }}
+          style={{ display: props.hasTarget ? 'block' : 'none' }}
         />
-        {!props.hasResult ? (
-          <EmptyState hasTarget={props.hasTarget} hasSources={props.hasSources} />
+        {!props.hasResult && !props.isGenerating ? (
+          props.hasTarget ? (
+            <div className="aff-empty-overlay">
+              <EmptyState hasTarget={props.hasTarget} hasSources={props.hasSources} />
+            </div>
+          ) : (
+            <EmptyState hasTarget={props.hasTarget} hasSources={props.hasSources} />
+          )
         ) : null}
       </div>
     </section>
